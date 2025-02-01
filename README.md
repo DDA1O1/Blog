@@ -57,3 +57,5 @@ src/
 - React Router
 - Tailwind CSS
 - Framer Motion
+
+## Installation
