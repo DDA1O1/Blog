@@ -64,5 +64,9 @@ const ForgotPassword = ({ onClose }) => {
     </div>
   );
 };
-
+// Flow Summary:
+// 1. User clicks "Forgot Password?" → showForgotPassword becomes true
+// 2. Modal appears because showForgotPassword is true
+// 3. User clicks "Cancel" → onClose function runs → showForgotPassword becomes false
+// 4. Modal disappears because showForgotPassword is false
 export default ForgotPassword; 

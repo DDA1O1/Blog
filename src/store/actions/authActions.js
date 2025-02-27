@@ -1,12 +1,14 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { setLoading, setError, setUser, resetAuth } from '@store/slices/authSlice';
 import { authService } from '@api/auth.service';
+import AuthProvider from '@services/lib/auth';
 
 export const loginUser = (email, password) => async (dispatch, getState) => {
   try {
     dispatch(setLoading(true));
-    const { provider } = getState().auth; // Get provider from state
-    const user = await authService.login(email, password, provider);
+    const { provider } = getState().auth;
+    const authProvider = new AuthProvider(provider);
+    const user = await authProvider.login(email, password);
     if (user) {
       dispatch(setUser(user));
       return user;
@@ -20,10 +22,14 @@ export const loginUser = (email, password) => async (dispatch, getState) => {
   }
 };
 
-export const signupUser = (email, password, provider) => async (dispatch) => {
+// Redux automatically injects dispatch and getState
+export const signupUser = (email, password) => async (dispatch, getState) => {
+  // You can use dispatch here without importing useDispatch
+  const provider = getState().auth.provider;
+  const authProvider = new AuthProvider(provider);
+  
   try {
-    dispatch(setLoading(true));
-    const user = await authService.signup(email, password, provider);
+    const user = await authProvider.signup(email, password);
     dispatch(setUser(user));
     return user;
   } catch (error) {

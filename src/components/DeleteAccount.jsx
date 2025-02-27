@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { deleteAccount } from '@store/actions/authActions';
 
 const DeleteAccount = ({ onClose }) => {
@@ -9,7 +9,15 @@ const DeleteAccount = ({ onClose }) => {
   const [deleteError, setDeleteError] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { loading } = useSelector(state => state.auth);
+
+  useEffect(() => {
+    // Check if user just re-authenticated
+    if (location.state?.reAuthSuccess) {
+      handleDeleteAfterAuth();
+    }
+  }, [location.state]);
 
   const handleDelete = async (e) => {
     e.preventDefault();
@@ -18,30 +26,33 @@ const DeleteAccount = ({ onClose }) => {
     setDeleteError(null);
     
     try {
-      console.log('Starting delete process...');
+      // First try to delete
       await dispatch(deleteAccount()).unwrap();
-      console.log('Delete successful');
       setSuccess(true);
-      
-      // Redirect after success
-      setTimeout(() => {
-        navigate('/');
-      }, 5000);
+      setTimeout(() => navigate('/'), 5000);
     } catch (error) {
-      console.error('Delete failed:', error);
-      
-      // Handle re-authentication requirement
-      if (error.message.includes('sign in again')) {
+      // If re-auth needed, redirect to auth page
+      if (error.code === 'auth/requires-recent-login') {
         navigate('/auth', { 
           state: { 
-            message: error.message 
+            message: 'Please verify your identity to delete your account',
+            reAuth: true,
+            onSuccess: '/settings/delete-account'  // Route to return to
           }
         });
         return;
       }
-      
       setDeleteError(error.message);
-      setSuccess(false);
+    }
+  };
+
+  const handleDeleteAfterAuth = async () => {
+    try {
+      await dispatch(deleteAccount()).unwrap();
+      setSuccess(true);
+      setTimeout(() => navigate('/'), 5000);
+    } catch (error) {
+      setDeleteError(error.message);
     }
   };
 

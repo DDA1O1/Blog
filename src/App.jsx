@@ -12,10 +12,11 @@ import ProtectedRoute from '@components/ProtectedRoute';
 
 const AppRoutes = () => {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/auth" element={<AuthPage />} />
-      <Route 
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route 
         path="/dashboard" 
         element={
           <ProtectedRoute>
@@ -24,15 +25,14 @@ const AppRoutes = () => {
         } 
       />
     </Routes>
+    </BrowserRouter>
   );
 };
 
 const App = () => {
   return (
     <Provider store={store}>
-      <BrowserRouter>
         <AppRoutes />
-      </BrowserRouter>
     </Provider>
   );
 };

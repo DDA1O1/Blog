@@ -10,7 +10,6 @@ import {
   sendEmailVerification,
   sendPasswordResetEmail,
   verifyBeforeUpdateEmail,
-  deleteUser,
   updateProfile,
   GithubAuthProvider
 } from 'firebase/auth';
